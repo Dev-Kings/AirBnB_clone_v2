@@ -1,12 +1,21 @@
 #!/usr/bin/env bash
 # Sets up a web server for deployment of web_static.
 
-apt-get update
-apt-get install -y nginx
+apt-get update -qq > /dev/null
+apt-get install -y nginx > /dev/null
 
 mkdir -p /data/web_static/releases/test/
 mkdir -p /data/web_static/shared/
-echo "Hello World" > /data/web_static/releases/test/index.html
+
+# Create a fake HTML file for testing
+echo "<html>
+  <head>
+  </head>
+  <body>
+    Holberton School
+  </body>
+</html>" | sudo tee /data/web_static/releases/test/index.html > /dev/null
+
 ln -sf /data/web_static/releases/test/ /data/web_static/current
 
 chown -R ubuntu /data/
@@ -25,7 +34,7 @@ printf %s "server {
     }
 
     location /redirect_me {
-        return 301 http://cuberule.com/;
+        return 301 http://github.com/Dev-Kings;
     }
 
     error_page 404 /404.html;
@@ -35,4 +44,7 @@ printf %s "server {
     }
 }" > /etc/nginx/sites-available/default
 
-service nginx restart
+service nginx restart > /dev/null 2>&1
+
+# Exit successfully
+exit 0
