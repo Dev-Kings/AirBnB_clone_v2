@@ -41,9 +41,8 @@ def do_deploy(archive_path):
         bool: True if all operations have been done correctly, otherwise False.
     """
     if not os.path.exists(archive_path):
-        print(f"Archive file {archive_path} not found")
         return False
- 
+
     file_name = os.path.basename(archive_path)
     file_name_no_ext = os.path.splitext(file_name)[0]
     remote_path = "/tmp/{}".format(file_name)
@@ -57,15 +56,24 @@ def do_deploy(archive_path):
         run('mkdir -p /data/web_static/current')
 
         # Extract archive and update contents
-        run("tar -xzf {} -C /data/web_static/releases/{}/".format(remote_path, file_name_no_ext))
-        run("mv /data/web_static/releases/{}/web_static/* /data/web_static/releases/{}/".format(file_name_no_ext, file_name_no_ext))
+        run("tar -xzf {} -C /data/web_static/releases/{}/".format(
+            remote_path, file_name_no_ext))
+        mv_arg1 = "mv /data/web_static/releases/{}/web_static/*"
+        mv_arg2 = "/data/web_static/releases/{}/"
+        mv_args = mv_arg1 + " " + mv_arg2
+        run(mv_args.format(file_name_no_ext, file_name_no_ext))
 
         # Clean up
         run("rm {}".format(remote_path))
-        run("rm -rf /data/web_static/releases/{}/web_static".format(file_name_no_ext))
+        run("rm -rf /data/web_static/releases/{}/web_static".
+            format(file_name_no_ext)
+            )
         run("rm -rf /data/web_static/current")
-        run("ln -s /data/web_static/releases/{}/ /data/web_static/current".format(file_name_no_ext))
-        
+        run("ln -s /data/web_static/releases/{}/ /data/web_static/current".
+            format(file_name_no_ext)
+            )
+        print("New version deployed!")
+
         return True
 
     except Exception as e:
