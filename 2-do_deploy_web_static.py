@@ -4,30 +4,14 @@ Fabric script that distributes an archive to your web servers,
 using the function do_deploy.
 """
 
-import os
 from fabric.api import run, put, env
+import os
+
 
 env.hosts = ['54.196.29.210', '54.87.217.94']
 env.user = 'ubuntu'
 env.key_filename = ['~/.ssh/id_rsa']
 env.output_prefix = False  # Enable verbose output
-
-
-def do_pack():
-    """Create a tar gzipped archive of the directory web_static."""
-    dt = datetime.utcnow()
-    file = "versions/web_static_{}{}{}{}{}{}.tgz".format(dt.year,
-                                                         dt.month,
-                                                         dt.day,
-                                                         dt.hour,
-                                                         dt.minute,
-                                                         dt.second)
-    if os.path.isdir("versions") is False:
-        if local("mkdir -p versions").failed is True:
-            return None
-        if local("tar -cvzf {} web_static".format(file)).failed is True:
-            return None
-        return file
 
 
 def do_deploy(archive_path):
