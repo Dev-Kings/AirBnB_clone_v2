@@ -1,4 +1,4 @@
-# 101-setup_web_static.pp
+# Puppet lint that automates the deployment of web_static
 
 # Ensure Nginx is installed
 package { 'nginx':
@@ -6,40 +6,41 @@ package { 'nginx':
 }
 
 # Ensure the necessary directories are present
-file { ['/data/', '/data/web_static/', '/data/web_static/releases/', '/data/web_static/shared', '/data/web_static/releases/test/']:
-  ensure => directory,
-  owner  => 'ubuntu',
-  group  => 'ubuntu',
-  mode   => '0755',
+file { '/data/':
+  ensure => 'directory',
+}
+
+file { '/data/web_static/':
+  ensure => 'directory',
+}
+
+file { '/data/web_static/releases/':
+  ensure => 'directory',
+}
+
+file { '/data/web_static/shared/':
+  ensure => 'directory',
+}
+
+file { '/data/web_static/releases/test/':
+  ensure => 'directory',
 }
 
 # Create a test HTML file
 file ( '/data/web_static/releases/test/index.html':
-  ensure  => file,
-  content => '<html>
-  <head>
-  </head>
-  <body>
-    Holberton School
-  </body>
- <html>',
-  owner   => 'ubuntu',
-  group   => 'ubuntu',
-  mode    => '0644',
+  ensure  => 'file',
+  content => 'Holberton School',
 }
 
 # Create a symbolic link
 file { '/data/web_static/current':
-  ensure => link,
-  target => '/data/web_static/releases/test/',
-  owner  => 'ubuntu',
-  group  => 'ubuntu',
-  force  => true,
+  ensure  => 'link',
+  target  => '/data/web_static/releases/test/',
+  require => File['/data/web_static/releases/test/'],
 }
 
-# Ensure ownership of /data/ directory
+# Giving ownership to the ubuntu user and group
 file { '/data/':
-  ensure  => directory,
   owner   => 'ubuntu',
   group   => 'ubuntu',
   recurse => true,
@@ -47,34 +48,36 @@ file { '/data/':
 
 # Configure Nginx
 file { '/etc/nginx/sites-available/default':
-  ensure  => file,
-  content => "server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    add_header X-Served-By \$hostname;
-    root   /var/www/html;
-    index  index.html index.htm;
+  ensure  => 'file',
+  content => '
+    server {
+	listen 80;
+	listen [::]:80 default_server;
+	add_header X-Served-By \$hostname;
+	root   /var/www/html;
+	index  index.html index.htm;
 
-   location /hbnb_static {
-       alias /data/web_static/current;
-       index index.html index.htm;
-   }
+	location /hbnb_static {
+	    alias /data/web_static/current;
+	    index index.html index.htm;
+	}
 
-   location /redirect_me {
-       return 301 http://github.com/Dev-Kings;
-   }
+	location /redirect_me {
+	    return 301 http://github.com/Dev-Kings;
+	}
 
-   error_page 404 /404.html;
-   location /404 {
-     root /var/www/html;
-     internal;
-   }
-}",
-  notify  => Service['nginx'],
+	error_page 404 /404.html;
+	location /404 {
+	    root /var/www/html;
+	    internal;
+	}
+    }
+  ',
+  require => Package['nginx'],
 }
 
-# Ensure Nginx service is running
+# Restart Nginx service
 service { 'nginx':
-  ensure => running,
-  enable => true,
+  ensure    => running,
+  subscribe => File['/etc/nginx/sites-available/default'],
 }
