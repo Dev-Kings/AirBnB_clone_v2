@@ -27,7 +27,7 @@ file { '/data/web_static/releases/test/':
 }
 
 # Create a test HTML file
-file ( '/data/web_static/releases/test/index.html':
+file { '/data/web_static/releases/test/index.html':
   ensure  => 'file',
   content => 'Holberton School',
 }
@@ -55,7 +55,7 @@ file { '/etc/nginx/sites-available/default':
 	listen [::]:80 default_server;
 	add_header X-Served-By \$hostname;
 	root   /var/www/html;
-	index  index.html index.htm;
+	index  index.html index.htm index.nginx-debian.html;
 
 	location /hbnb_static {
 	    alias /data/web_static/current;
@@ -63,12 +63,12 @@ file { '/etc/nginx/sites-available/default':
 	}
 
 	location /redirect_me {
-	    return 301 http://github.com/Dev-Kings;
+	    return 301 https://www.github.com/Dev-Kings/;
 	}
 
 	error_page 404 /404.html;
 	location /404 {
-	    root /var/www/html;
+	    root /etc/nginx/html;
 	    internal;
 	}
     }
@@ -78,6 +78,6 @@ file { '/etc/nginx/sites-available/default':
 
 # Restart Nginx service
 service { 'nginx':
-  ensure    => running,
+  ensure    => 'running',
   subscribe => File['/etc/nginx/sites-available/default'],
 }
