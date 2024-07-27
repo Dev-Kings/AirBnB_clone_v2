@@ -13,7 +13,7 @@ def hello_hbnb():
     return ("Hello HBNB!")
 
 
-@app.route('/hbnb')
+@app.route('/hbnb', strict_slashes=False)
 def hbnb():
     """Returns
             HBNB
@@ -21,7 +21,7 @@ def hbnb():
     return ("HBNB")
 
 
-@app.route('/c/<text>')
+@app.route('/c/<text>', strict_slashes=False)
 def c_is_fun(text):
     """ Replaces _ with space if text argument has it.
         Args
