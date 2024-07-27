@@ -1,35 +1,36 @@
 #!/usr/bin/python3
-"""Starts a Flask web application.
-
-The application listens on 0.0.0.0, port 5000.
-Routes:
-    /: Displays 'Hello HBNB!'.
-    /hbnb: Displays 'HBNB'.
-    /c/<text>: Displays 'C' followed by the value of <text>.
-"""
+""" Module with script to start a Flask Web application """
 from flask import Flask
 
 app = Flask(__name__)
 
 
-@app.route("/", strict_slashes=False)
+@app.route('/', strict_slashes=False)
 def hello_hbnb():
-    """Displays 'Hello HBNB!'."""
-    return "Hello HBNB!"
+    """Returns:
+            String Hello HBNB!
+    """
+    return ("Hello HBNB!")
 
 
-@app.route("/hbnb", strict_slashes=False)
+@app.route('/hbnb')
 def hbnb():
-    """Displays 'HBNB'."""
-    return "HBNB"
+    """Returns
+            HBNB
+    """
+    return ("HBNB")
 
 
-@app.route("/c/<text>", strict_slashes=False)
-def c(text):
-    """Displays 'C' followed by the value of <text>."""
-    text = text.replace("_", " ")
-    return "C {}".format(text)
+@app.route('/c/<text>')
+def c_is_fun(text):
+    """ Replaces _ with space if text argument has it.
+        Args
+            text (str) : Text to print
+        Returns:
+            C <text>
+    """
+    return (f"C {text.replace('_', ' ')}")
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", port=5000)
