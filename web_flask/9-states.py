@@ -9,8 +9,12 @@ Routes:
 from models import storage
 from flask import Flask
 from flask import render_template
+from os import getenv
 
 app = Flask(__name__)
+
+# Determine the type of storafge being used
+storage_type = getenv('HBNB_TYPE_STORAGE')
 
 
 @app.route("/states", strict_slashes=False)
@@ -19,17 +23,33 @@ def states():
 
     States are sorted by name.
     """
-    states = storage.all("State")
-    return render_template("9-states.html", state=states)
+    states = storage.all("State").values()
+    states = sorted(states, key=lambda x: x.name)
+    return render_template("9-states.html", states=states, cities=None)
 
 
 @app.route("/states/<id>", strict_slashes=False)
-def states_id(id):
-    """Displays an HTML page with info about <id>, if it exists."""
-    for state in storage.all("State").values():
-        if state.id == id:
-            return render_template("9-states.html", state=state)
-    return render_template("9-states.html")
+def state_cities(id):
+    """Displays an HTML page with the cities of a specific state or
+    'Not found! if not found"""
+    state = None
+    for s in storage.all("State").values():
+        if s.id == id:
+            state = s
+            break
+
+    if state:
+        print(f"Found state: {state.name}, ID: {state.id}")
+        if storage_type == 'db':
+            cities = sorted(state.cities, key=lambda x: x.name)
+        else:
+            cities = sorted(state.cities(), key=lambda x: x.name)
+        print(f"Cities: {cities}")
+        return render_template('9-states.html', states=[state], cities=cities)
+    else:
+        print("State not found!")
+        return render_template('9-states.html', states=[], cities=None,
+                               not_found=True)
 
 
 @app.teardown_appcontext
