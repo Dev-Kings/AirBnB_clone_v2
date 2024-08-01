@@ -8,6 +8,7 @@ Routes:
 from models import storage
 from flask import Flask
 from flask import render_template
+from os import getenv
 
 app = Flask(__name__)
 
@@ -17,8 +18,10 @@ def hbnb_filters():
     """Displays the main HBnB filters HTML page."""
     states = storage.all("State")
     amenities = storage.all("Amenity")
+    storage_type = getenv('HBNB_TYPE_STORAGE')
     return render_template("10-hbnb_filters.html",
-                           states=states, amenities=amenities)
+                           states=states, amenities=amenities,
+                           storage_type=storage_type)
 
 
 @app.teardown_appcontext
